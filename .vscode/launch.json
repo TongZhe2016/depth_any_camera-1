@@ -1,0 +1,457 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Debug Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: demo",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "demo/demo_indoor.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////              Test            /////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        {
+            "name": "Python Debugger: test matterport3d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/test_dac.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--model-file",
+                "checkpoints/dac_resnet101_indoor.pt",  // checkpoints/dac_resnet101_indoor.pt for DAC model, switch to original IDisc model when needed
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--config-file",
+                "configs/test/dac_resnet101_indoor_test_m3d.json",  // configs/test/dac_resnet101_indoor_test_m3d.json for DAC model, template compatible with all the other models
+                "--base-path",
+                "datasets",
+                "--val-batch-sz",
+                "1",
+                // "--vis"
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: test gibson_v2",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/test_dac.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--model-file",
+                "checkpoints/dac_resnet101_indoor.pt",  // checkpoints/dac_resnet101_indoor.pt for DAC model, switch to original IDisc model when needed
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--config-file",
+                "configs/test/dac_resnet101_indoor_test_gv2.json",  // configs/test/dac_resnet101_indoor_test_gv2.json for DAC model, template compatible with all the other models
+                "--base-path",
+                "datasets",
+                "--val-batch-sz",
+                "1",
+                // "--vis"
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: test scannetpp",  
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/test_dac.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--model-file",
+                "checkpoints/dac_swinl_indoor.pt",  // checkpoints/dac_resnet101_indoor.pt for DAC model, switch to original IDisc model when needed
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--config-file",
+                "configs/test/dac_swinl_indoor_test_scannetpp.json",  // configs/test/dac_resnet101_indoor_test_scannetpp.json for DAC model, template compatible with all the other models
+                "--base-path",
+                "datasets",
+                "--val-batch-sz",
+                "1",
+                // "--vis"
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: test kitti360",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/test_dac.py",  // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--model-file",
+                "checkpoints/dac_swinl_outdoor.pt", // checkpoints/dac_swinl_outdoor.pt for DAC model, switch to original IDisc model when needed
+                "--model-name",
+                "IDisc", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--config-file",
+                "configs/test/dac_swinl_outdoor_test_kitti360.json", // configs/test/dac_swinl_outdoor_test_kitti360.json for DAC model, template compatible with all the other models
+                "--base-path",
+                "datasets",
+                "--val-batch-sz",
+                "1",
+                // "--vis"
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: test nyu",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/test_dac.py", // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--model-file",
+                "checkpoints/dac_swinl_indoor.pt",  // checkpoints/dac_swinl_indoor.pt for DAC model, switch to original IDisc model when needed
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--config-file",
+                "configs/test/dac_swinl_indoor_test_nyu.json",  // configs/test/dac_swinl_indoor_test_nyu.json for DAC model, template compatible with all the other models
+                "--base-path",
+                "datasets",
+                "--val-batch-sz",
+                "1",
+                // "--vis"
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: test kitti",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/test_dac.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--model-file",
+                "checkpoints/dac_swinl_outdoor.pt",  // checkpoints/dac_swinl_outdoor.pt for DAC model, switch to original IDisc model when needed
+                "--model-name",
+                "IDisc", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--config-file",
+                "configs/test/dac_swinl_outdoor_test_kitti.json",   // configs/test/dac_swinl_outdoor_test_kitti.json for DAC model, template compatible with all the other models
+                "--base-path",
+                "datasets",
+                "--val-batch-sz",
+                "1",
+                // "--vis"
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////              Train            /////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        {
+            "name": "Python Debugger: train hm3d+taskonomy+hypersim metric3d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_mix_datasets.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDisc", // IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train hm3d+taskonomy+hypersim dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train hm3d+taskonomy+hypersim dac large",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac_large.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_swinl_s2.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train ddad+lyft dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/ddad+lyft/ddad+lyft_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDisc", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train ddad+lyft dac large",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac_large.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/ddad+lyft/ddad+lyft_dac_swinl_s2.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDisc", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train hypersim metric3d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_persp.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/hypersim/hypersim_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDisc", // IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train hypersim dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/hypersim/hypersim_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train taskonomy metric3d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_persp.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/taskonomy/taskonomy_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDisc", // IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train taskonomy dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/taskonomy/taskonomy_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train hm3d metric3d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_persp.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/hm3d/hm3d_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDisc", // IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train hm3d dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/hm3d/hm3d_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train kitti metric3d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_persp.py",  // train_persp.py for original idisc model, train_v1.py for modified model with attention handling scale-equivariance
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/kitti/kitti_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDisc", // IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train kitti dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/kitti/kitti_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train ddad dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/ddad/ddad_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: train lyft dac",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/train_dac.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "configs/train/lyft/lyft_dac_r101.json",
+                "--base-path",
+                "datasets",
+                "--model-name",
+                "IDiscERP", // IDiscERP, IDisc, IDiscEqui, CNNDepth
+                "--distributed"  // Uncomment this line to enable distributed training
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+    ]
+}

@@ -1,0 +1,10 @@
+__pycache__
+.idea
+.ipynb_checkpoints
+dac/models/ops/build/
+dac/models/ops/MultiScaleDeformableAttention.egg-info/
+datasets
+checkpoints*
+*.so
+show_dirs
+wandb

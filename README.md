@@ -113,13 +113,12 @@ We provide two indoor models and two outdoor modeling considering Resnet101 and 
 
 | Model Name | Training Datasets | Config (training) | Weights
 |:-|:-:|:-:|:-:|
-| dac-indoor-resnet101 (ours) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_r101.json)   | [gdrive](https://drive.google.com/file/d/1yPWje4FF0RpHFb2fmnl6iuHhZHc5BNEB/view?usp=drive_link) |
-| dac-indoor-swinL (ours)     | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_swinl_s2.json) | [gdrive](https://drive.google.com/file/d/1r2idjcNn7DNx6YDWRxw2D5ga3bw1p5A7/view?usp=drive_link) |
-| dac-outdoor-resnet101 (ours) | outdoor mix 130k | [config](configs/train/ddad+lyft/ddad+lyft_dac_r101.json) | [gdrive](https://drive.google.com/file/d/1sxJh4-Hxp7oZ6Q0LRgTdHAq8u_2Af2S6/view?usp=drive_link) |
-| dac-outdoor-swinL (ours)    | outdoor mix 130k | [config](configs/train/ddad+lyft/ddad+lyft_dac_swinl_s2.json) | [gdrive](https://drive.google.com/file/d/1HDa5FNcaXVik7sjH6XrDbW1Mu9lFp4CZ/view?usp=drive_link) |
-| idisc-metric3d-indoor-resnet101 (weak baseline 1) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_r101.json)   | [gdrive](https://drive.google.com/file/d/1aQlF4tscBG9bpQEjMSMWuT0RZeGavs6p/view?usp=drive_link) |
-| cnndepth-metric3d-indoor-resnet101 (weak baseline 2) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_r101.json)   | [gdrive](https://drive.google.com/file/d/1W4zOc9uGreLmmkEH6l369uquQ_x5H1AQ/view?usp=drive_link) |
-
+| dac-indoor-resnet101 (ours) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_r101.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_indoor.pt)|
+| dac-indoor-swinL (ours)     | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_swinl_s2.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_indoor.pt)|
+| dac-outdoor-resnet101 (ours) | outdoor mix 130k | [config](configs/train/ddad+lyft/ddad+lyft_dac_r101.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_outdoor.pt)|
+| dac-outdoor-swinL (ours)    | outdoor mix 130k | [config](configs/train/ddad+lyft/ddad+lyft_dac_swinl_s2.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_outdoor.pt)|
+| idisc-metric3d-indoor-resnet101 (weak baseline 1) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_r101.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/idisc_resnet101_indoor.pt)|
+| cnndepth-metric3d-indoor-resnet101 (weak baseline 2) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_r101.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/cnndepth_resnet101_indoor.pt)|
 
 ## Demo
 

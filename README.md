@@ -206,7 +206,7 @@ Please also consider citing them.
 
 ## License
 
-This software is released under Creatives Common BY-NC 4.0 license. You can view a license summary [here](LICENSE).
+This software is released under MIT license. You can view a license summary [here](LICENSE).
 
 
 ## Citation

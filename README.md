@@ -80,14 +80,15 @@ We highlight the **best** and *second best* results in **bold** and *italic* res
 
 
 # Usage
-## Clone the Repository
+## Installation
+### Clone the Repository
 
 ```bash
 git clone https://github.com/yuliangguo/depth_any_camera
 cd depth_any_camera
 ```
 
-## Docker Installation 
+### Docker Installation 
 This repository can be run from within Docker, as long as the NVDIDIA Container Toolkit is properly configured. For Ubuntu Installation steps, refer to [this guide](https://github.com/garylvov/dev_env/tree/main/setup_scripts/nvidia).
 
 ```
@@ -101,7 +102,7 @@ docker run --gpus all --network host -v $(pwd):/depth_any_camera -it dac /bin/ba
 source post-entry-hooks.sh
 ```
 
-## Conda Installation
+### Conda Installation
 Alternatively, this repository can be run from within Conda alone.
 ```bash
 git clone https://github.com/yuliangguo/depth_any_camera

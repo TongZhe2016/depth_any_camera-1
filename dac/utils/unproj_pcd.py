@@ -52,7 +52,7 @@ def reconstruct_pcd_erp(depth, mask=None, lat_range=None, long_range=None):
     longitude = longitude.astype(np.float32)
     latitude = latitude.astype(np.float32)
 
-    x = np.cos(latitude) * np.cos(longitude)
+    x = -np.cos(latitude) * np.cos(longitude)
     z = np.cos(latitude) * np.sin(longitude)
     y = np.sin(latitude)
     

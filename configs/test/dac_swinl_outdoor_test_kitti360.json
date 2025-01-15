@@ -25,8 +25,7 @@
         "isd": {
             "latent_dim": 128,
             "num_resolutions": 3,
-            "depths": 2,
-            "output_dim": 1
+            "depths": 2
         },
         "pixel_decoder": {
             "heads": 4,

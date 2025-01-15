@@ -15,8 +15,16 @@
             "name": "Python Debugger: demo",
             "type": "debugpy",
             "request": "launch",
-            "program": "demo/demo_indoor.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "program": "demo/demo_dac_indoor.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
             "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "checkpoints/dac_swinl_indoor.json",  // the model config
+                "--model-file",
+                "checkpoints/dac_swinl_indoor.pt",  // the model checkpoint
+                "--out-dir",
+                "demo/output",
+            ],
             "env": {
                 "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
             }
@@ -89,7 +97,7 @@
                 "datasets",
                 "--val-batch-sz",
                 "1",
-                // "--vis"
+                "--vis",
             ],
             "env": {
                 "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"

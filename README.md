@@ -109,20 +109,20 @@ Please refer to [DATA.md](docs/DATA.md) for detailed datasets preparation. Make 
 
 ## Pre-trained models
 
-We provide two indoor models and two outdoor modeling considering Resnet101 and SwinTransformer-Large (SwinL) as backbones. In addition, we also provide two weaker baseline models for comparison. The download links can be found in the following table or from <a href='https://huggingface.co/yuliangguo/depth-any-camera'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-yellow'></a>. We suggest to save download weights at `checkpoints` in order to run our scripts directly.
+We provide two indoor models and two outdoor modeling considering Resnet101 and SwinTransformer-Large (SwinL) as backbones. In addition, we also provide two weaker baseline models for comparison. The download links can be found in the following table or from <a href='https://huggingface.co/yuliangguo/depth-any-camera'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-yellow'></a>. We suggest to save download both the **model configs and model weights** at `checkpoints` in order to run our scripts directly.
 
-| Model Name | Training Datasets | Config (training) | Weights
+| Model Name | Training Datasets | Model Configs | Weights
 |:-|:-:|:-:|:-:|
-| dac-indoor-resnet101 (ours) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_r101.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_indoor.pt)|
-| dac-indoor-swinL (ours)     | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_dac_swinl_s2.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_indoor.pt)|
-| dac-outdoor-resnet101 (ours) | outdoor mix 130k | [config](configs/train/ddad+lyft/ddad+lyft_dac_r101.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_outdoor.pt)|
-| dac-outdoor-swinL (ours)    | outdoor mix 130k | [config](configs/train/ddad+lyft/ddad+lyft_dac_swinl_s2.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_outdoor.pt)|
-| idisc-metric3d-indoor-resnet101 (weak baseline 1) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_r101.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/idisc_resnet101_indoor.pt)|
-| cnndepth-metric3d-indoor-resnet101 (weak baseline 2) | indoor mix 670k | [config](configs/train/hm3d+taskonomy+hypersim/hm3d+taskonomy+hypersim_r101.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/cnndepth_resnet101_indoor.pt)|
+| dac-indoor-resnet101 (ours) | indoor mix 670k | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_indoor.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_indoor.pt)|
+| dac-indoor-swinL (ours)     | indoor mix 670k | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_indoor.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_indoor.pt)|
+| dac-outdoor-resnet101 (ours) | outdoor mix 130k | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_outdoor.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_resnet101_outdoor.pt)|
+| dac-outdoor-swinL (ours)    | outdoor mix 130k | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_outdoor.json) | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/dac_swinl_outdoor.pt)|
+| idisc-metric3d-indoor-resnet101 (weak baseline 1) | indoor mix 670k | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/idisc_resnet101_indoor.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/idisc_resnet101_indoor.pt)|
+| cnndepth-metric3d-indoor-resnet101 (weak baseline 2) | indoor mix 670k | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/cnndepth_resnet101_indoor.json)   | [huggingface](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/cnndepth_resnet101_indoor.pt)|
 
 ## Demo
 
-We have provided a ready-to-run demo script at `demo/demo_indoor.py`. This script demonstrates how to perform inference on various types of camera data, including ScanNet++ (fisheye), Matterport3D (360), and NYU (perspective), using a single metric depth model trained on perspective images. The code generates visualization results as shown below:
+We have provided a ready-to-run demo script at `demo/demo_indoor.py`. This script demonstrates how to perform inference on various types of camera data, including ScanNet++ (fisheye), Matterport3D (360), and NYU (perspective), using a single metric depth model trained on perspective images. The code generates point cloud files `*.ply` and visualization results as shown below:
 
 <p align="center">
   <img src="demo/output/scannetpp_output_remap_subplot.jpg" alt="demo output" style="width: 70%;">

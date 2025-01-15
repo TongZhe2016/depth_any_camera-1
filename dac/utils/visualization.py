@@ -300,6 +300,7 @@ def save_val_imgs_v2(
         plt.subplots_adjust(hspace=0.4)
         plt.savefig(os.path.join(save_dir, filename[:-4]+'_subplot.jpg'), dpi=200)
         # plt.close()
+    return rgb
         
         
 def visualize_results(batch, preds, out_dir, config, data_dir, save_pcd=False, index=0):
@@ -336,9 +337,25 @@ def visualize_results(batch, preds, out_dir, config, data_dir, save_pcd=False, i
         arel_max=vis_arel_max
     )
     
-    ##########  Additioanal step for erp mode: converting the testing erp image back to original space for visualization  ##########
-    pred_depth = preds[0, 0].detach().cpu().numpy()
     intrinsics = batch['info']['camera_intrinsics'][0].detach().cpu().numpy()
+    if save_pcd:
+        if config['data']['tgt_f'] > 0 and config['data']['erp'] == False: # perspective model output
+            pcd = reconstruct_pcd(preds[0, 0].detach().cpu().numpy(), intrinsics[0, 0], intrinsics[1, 1], intrinsics[0, 2], intrinsics[1, 2])
+        else:
+            pcd = reconstruct_pcd_erp(preds[0, 0].detach().cpu().numpy(), mask=(batch['attn_mask'][0][0]).numpy(), lat_range=batch['lat_range'][0], long_range=batch['long_range'][0]) 
+        save_pcd_dir = os.path.join(out_dir, 'val_pcds')
+        os.makedirs(os.path.join(save_pcd_dir), exist_ok=True)
+        pc_file = os.path.join(save_pcd_dir, f'pcd_{index:06d}.ply')
+        pcd = pcd.reshape(-1, 3)
+        rgb = rgb.reshape(-1, 3)
+        # if dataset_name not in ['matterport3d', 'gibson_v2']:
+        #     non_zero_indices = pcd[:, -1] > 0
+        #     pcd = pcd[non_zero_indices]
+        #     rgb = rgb[non_zero_indices]
+        save_file_ply(pcd, rgb, pc_file)
+    
+    
+    ##########  Additioanal step for erp mode: converting the testing erp image back to original space for visualization  ##########
     if 'erp' in config['data'].keys() and config['data']['erp'] == True:                    
         if dataset_name == 'kitti360':
             out_h = 700
@@ -416,21 +433,3 @@ def visualize_results(batch, preds, out_dir, config, data_dir, save_pcd=False, i
                 depth_max=vis_depth_max,
                 arel_max=vis_arel_max
                 )
-        if save_pcd:
-            pcd = reconstruct_pcd_erp(pred_depth, mask=(batch['attn_mask'][0][0]==0).numpy(), lat_range=batch['lat_range'][0], long_range=batch['long_range'][0])         
-    else:
-        if save_pcd:
-            pcd = reconstruct_pcd(pred_depth, intrinsics[0, 0], intrinsics[1, 1], intrinsics[0, 2], intrinsics[1, 2])
-        #     # the case raw fisheye image is loaded
-        #     pcd = reconstruct_pcd_fisheye(pred_depth, grid_fisheye, mask=mask_fisheye)
-
-    if save_pcd:
-        save_pcd_dir = os.path.join(out_dir, 'val_pcds')
-        os.makedirs(os.path.join(save_pcd_dir), exist_ok=True)
-        pc_file = os.path.join(save_pcd_dir, f'pcd_{index:06d}.ply')
-        pcd = pcd.reshape(-1, 3)
-        rgb = rgb.reshape(-1, 3)
-        non_zero_indices = pcd[:, -1] > 0
-        pcd = pcd[non_zero_indices]
-        rgb = rgb[non_zero_indices]
-        save_file_ply(pcd, rgb, pc_file)

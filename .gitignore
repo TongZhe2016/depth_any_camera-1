@@ -8,3 +8,4 @@ checkpoints*
 *.so
 show_dirs
 wandb
+*_pcd.ply

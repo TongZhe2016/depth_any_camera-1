@@ -95,7 +95,9 @@ This repository can be run from within Docker, as long as the NVDIDIA Container 
 docker build -t dac:latest .
 # Enter the container
 docker run --gpus all --network host -v $(pwd):/depth_any_camera -it dac /bin/bash 
-# Once within the container, source the post-entry-hooks.sh to finish the install.
+
+# Once within the container, 
+#  source the post-entry-hooks.sh to finish the install.
 source post-entry-hooks.sh
 ```
 

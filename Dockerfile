@@ -7,14 +7,19 @@ RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
     git \
-    sudo \
-    && rm -rf /var/lib/apt/lists/*
+    sudo 
 
 # Install Miniforge as root in /root's home directory
 ENV CONDA_DIR=/root/miniforge3
 RUN curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
     bash Miniforge3-$(uname)-$(uname -m).sh -b -p ${CONDA_DIR} && \
     rm Miniforge3-$(uname)-$(uname -m).sh
+
+# Fixes opencv issue
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set environment path for root
 ENV PATH="${CONDA_DIR}/bin:$PATH"

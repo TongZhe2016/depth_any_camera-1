@@ -89,9 +89,10 @@ cd depth_any_camera
 ```
 
 ### Docker Installation 
-This repository can be run from within Docker, as long as the NVDIDIA Container Toolkit is properly configured. For Ubuntu Installation steps, refer to [this guide](https://github.com/garylvov/dev_env/tree/main/setup_scripts/nvidia).
+This repository can be run from within Docker, as long as the NVIDIA Container Toolkit is properly configured.
+For Ubuntu Installation steps, refer to [this guide](https://github.com/garylvov/dev_env/tree/main/setup_scripts/nvidia).
 
-```
+```bash
 # Build the container
 docker build -t dac:latest .
 # Enter the container
@@ -105,8 +106,6 @@ source post-entry-hooks.sh
 ### Conda Installation
 Alternatively, this repository can be run from within Conda alone.
 ```bash
-git clone https://github.com/yuliangguo/depth_any_camera
-cd depth_any_camera
 
 conda create -n dac python=3.9 -y
 conda activate dac

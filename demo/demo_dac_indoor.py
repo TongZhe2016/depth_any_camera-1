@@ -22,9 +22,8 @@ from dac.models.idisc_equi import IDiscEqui
 from dac.models.cnn_depth import CNNDepth
 from dac.utils.visualization import save_file_ply, save_val_imgs_v2
 from dac.utils.unproj_pcd import reconstruct_pcd, reconstruct_pcd_erp
-from dac.utils.erp_geometry import erp_patch_to_cam_fast
+from dac.utils.erp_geometry import erp_patch_to_cam_fast, cam_to_erp_patch_fast
 from dac.dataloders.dataset import resize_for_input
-from dac.utils.erp_geometry import cam_to_erp_patch_fast
 import torchvision.transforms.functional as TF
 
 ##################################################################################################################
@@ -41,8 +40,8 @@ SAMPLE_1 = {
     "erp": True,
     "cam_params": {
         'dataset':'matterport3d',
-        "w": 1024,
-        "h": 512,
+        # "w": 1024,
+        # "h": 512,
         "camera_model": "ERP",
     },
 }
@@ -67,8 +66,8 @@ SAMPLE_2 = {
         "k2": -0.005769803970428537,
         "k3": -0.002148236771485755,
         "k4": 0.00014840568362061509,
-        "w": 1752,
-        "h": 1168,
+        # "w": 1752,
+        # "h": 1168,
         "camera_model": "OPENCV_FISHEYE",
     }
 }
@@ -89,13 +88,13 @@ SAMPLE_3 = {
         'fy': 5.1946961112127485e+02,
         'cx': 3.2558244941119034e+02,
         'cy': 2.5373616633400465e+02,
-        "w": 640,
-        "h": 480,
+        # "w": 640,
+        # "h": 480,
         "camera_model": "PINHOLE",
     }
 }
 
-def demo_one_sample(model, device, sample, cano_sz, args: argparse.Namespace):
+def demo_one_sample(model, model_name, device, sample, cano_sz, args: argparse.Namespace):
     #######################################################################
     ############# data prepare (A simple version dataloader) ##############
     #######################################################################
@@ -103,12 +102,16 @@ def demo_one_sample(model, device, sample, cano_sz, args: argparse.Namespace):
     image = np.asarray(
         Image.open(sample["image_filename"])
     )
-    depth = (
-        np.asarray(
-            cv2.imread(sample["annotation_filename_depth"], cv2.IMREAD_ANYDEPTH)
-        ).astype(np.float32)
-        / sample["depth_scale"]
-    )
+    org_img_h, org_img_w = image.shape[:2]
+    if sample["annotation_filename_depth"] is None:
+        depth = np.zeros((org_img_h, org_img_w), dtype=np.float32)
+    else:
+        depth = (
+            np.asarray(
+                cv2.imread(sample["annotation_filename_depth"], cv2.IMREAD_ANYDEPTH)
+            ).astype(np.float32)
+            / sample["depth_scale"]
+        )
     
     dataset_name = sample["dataset_name"]
     fwd_sz=sample["fwd_sz"]
@@ -179,7 +182,10 @@ def demo_one_sample(model, device, sample, cano_sz, args: argparse.Namespace):
 
     gt, mask, attn_mask, lat_range, long_range = batch["gt"].to(device), batch["mask"].to(device), batch['attn_mask'].to(device), batch["lat_range"].to(device), batch["long_range"].to(device)
     with torch.no_grad():
-        preds, _, _ = model(batch["image"].to(device), lat_range, long_range)
+        if model_name == "IDiscERP":
+            preds, _, _ = model(batch["image"].to(device), lat_range, long_range)
+        else:
+            preds, _, _ = model(batch["image"].to(device))
     preds *= pred_scale_factor
     
     #######################################################################
@@ -198,7 +204,7 @@ def demo_one_sample(model, device, sample, cano_sz, args: argparse.Namespace):
         vis_arel_max = 0.3
     elif dataset_name == 'kitti':
         vis_depth_max = 80.0
-        vis_arel_max = 0.3
+        vis_arel_max = 0.8
     else:
         # default indoor visulization parameters
         vis_depth_max = 10.0
@@ -230,8 +236,8 @@ def demo_one_sample(model, device, sample, cano_sz, args: argparse.Namespace):
     ##########  Convert the ERP result back to camera space for visualization (No need for original ERP image)  ##########
     if not sample['erp']:                    
         if dataset_name == 'kitti360':
-            out_h = 700
-            out_w = 700
+            out_h = int(org_img_h/2)
+            out_w = int(org_img_w/2)
             grid_fisheye = np.load(sample["fishey_grid"])
             grid_isnan = cv2.resize(grid_fisheye[:, :, 3], (out_w, out_h), interpolation=cv2.INTER_NEAREST)
             grid_fisheye = cv2.resize(grid_fisheye[:, :, :3], (out_w, out_h))
@@ -243,16 +249,16 @@ def demo_one_sample(model, device, sample, cano_sz, args: argparse.Namespace):
             """
             grid_fisheye = np.load(sample["fishey_grid"])
             # set output size the same aspact ratio as raw image (no need to be same as fw_size)
-            out_h = 500
-            out_w = 750
+            out_h = int(org_img_h/2)
+            out_w = int(org_img_w/2)
             grid_isnan = cv2.resize(grid_fisheye[:, :, 3], (out_w, out_h), interpolation=cv2.INTER_NEAREST)
             grid_fisheye = cv2.resize(grid_fisheye[:, :, :3], (out_w, out_h))
             grid_fisheye = np.concatenate([grid_fisheye, grid_isnan[:, :, None]], axis=2)
             cam_params={'dataset':'scannetpp'} # when grid table is available, no need for intrinsic parameters
         else:
             # set output size the same aspact ratio as raw image (no need to be same as fw_size)
-            out_h = sample["cam_params"]['h']
-            out_w = sample["cam_params"]['w']
+            out_h = org_img_h
+            out_w = org_img_w
             grid_fisheye = None
             cam_params = sample["cam_params"]
             
@@ -289,7 +295,7 @@ def main(config: Dict[str, Any], args: argparse.Namespace):
     samples = [SAMPLE_1, SAMPLE_2, SAMPLE_3]
     for i, sample in enumerate(samples):
         print(f"demo for sample {i}: {sample['dataset_name']}")
-        demo_one_sample(model, device, sample, cano_sz, args)
+        demo_one_sample(model, config["model_name"], device, sample, cano_sz, args)
     print("Demo finished")
 
 if __name__ == "__main__":

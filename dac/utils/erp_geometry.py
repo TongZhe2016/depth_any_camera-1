@@ -158,7 +158,8 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
         # print(scale_fac)
 
     # Important: this normalization needs to use the source perspective image FOV, for the grid sample function range [-1, 1]
-    if cam_params['dataset'] == 'scannetpp':    
+    # Gnomonic Projection for OPENCV_FISHEYE model, only works for FOV < 180 degree
+    if cam_params['dataset'] == 'scannetpp' or cam_params['camera_model'] == 'OPENCV_FISHEYE':    
         """
             Apply opencv distortion (Refer to: OpenCV)
         """
@@ -183,6 +184,48 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
         # project to image coordinates
         new_x = fx * x_d + cx
         new_y = fy * y_d + cy
+        
+        """
+            Projection to image coordinates using intrinsic parameters
+        """
+        new_x -= img_w/2
+        new_x /= (img_w/2)
+        new_y -= img_h/2
+        new_y /= (img_h/2)
+        
+    # Gnomonic Projection for MEI model, but only works for FOV < 180 degree (kitti360 is slightly beyond 180)
+    elif cam_params['camera_model'] == 'MEI':
+        xi = cam_params['xi']
+        k1 = cam_params['k1']
+        k2 = cam_params['k2']
+        p1 = cam_params['p1']
+        p2 = cam_params['p2']
+        fx = cam_params['fx']
+        fy = cam_params['fy']
+        cx = cam_params['cx']
+        cy = cam_params['cy']
+        
+        # use spherical coordinates directly to avoid sigularity
+        # TODO: convert lon to scope [-pi, 0]? Need to debug on other datasets
+        x = np.cos(lat_grid) * np.cos(lon_grid - PI_2)
+        z = np.cos(lat_grid) * np.sin(lon_grid - PI_2)
+        y = np.sin(lat_grid)
+        
+        p_u = x / (z + xi)
+        p_v = y / (z + xi)
+
+        # apply distortion
+        ro2 = p_u*p_u + p_v*p_v
+
+        p_u *= 1 + k1*ro2 + k2*ro2*ro2
+        p_v *= 1 + k1*ro2 + k2*ro2*ro2
+
+        p_u += 2*p1*p_u*p_v + p2*(ro2 + 2*p_u*p_u)
+        p_v += p1*(ro2 + 2*p_v*p_v) + 2*p2*p_u*p_v
+
+        # apply projection
+        new_x = fx*p_u + cx 
+        new_y = fy*p_v + cy
         
         """
             Projection to image coordinates using intrinsic parameters
@@ -391,15 +434,15 @@ def fisheye_mei_to_erp(fisheye_image, camera_params, output_size=(1400, 1400)):
         Implement the inverse rendering, which is fast and leaves no holes
     """
     # Read intrinsics
-    xi = camera_params['mirror_parameters']['xi']
-    k1 = camera_params['distortion_parameters']['k1']
-    k2 = camera_params['distortion_parameters']['k2']
-    p1 = camera_params['distortion_parameters']['p1']
-    p2 = camera_params['distortion_parameters']['p2']
-    gamma1 = camera_params['projection_parameters']['gamma1']
-    gamma2 = camera_params['projection_parameters']['gamma2']
-    u0 = camera_params['projection_parameters']['u0']
-    v0 = camera_params['projection_parameters']['v0']
+    xi = camera_params['xi']
+    k1 = camera_params['k1']
+    k2 = camera_params['k2']
+    p1 = camera_params['p1']
+    p2 = camera_params['p2']
+    fx = camera_params['fx']
+    fy = camera_params['fy']
+    cx = camera_params['cx']
+    cy = camera_params['cy']
             
     erp_height = output_size[0]
     erp_width = output_size[1]
@@ -433,8 +476,8 @@ def fisheye_mei_to_erp(fisheye_image, camera_params, output_size=(1400, 1400)):
     p_v += p1*(ro2 + 2*p_v*p_v) + 2*p2*p_u*p_v
 
     # apply projection
-    p_u = gamma1*p_u + u0 
-    p_v = gamma2*p_v + v0
+    p_u = fx*p_u + cx 
+    p_v = fy*p_v + cy
 
     # Remap the fisheye image to ERP projection
     if fisheye_image.ndim == 2:
@@ -452,15 +495,15 @@ def erp_to_fisheye_mei(erp_img, camera_params, rotate):
     width, height = camera_params['image_width'], camera_params['image_height']
     # erp_img =  np.roll(erp_img, 100, axis=0)
 
-    xi = camera_params['mirror_parameters']['xi']
-    k1 = camera_params['distortion_parameters']['k1']
-    k2 = camera_params['distortion_parameters']['k2']
-    p1 = camera_params['distortion_parameters']['p1']
-    p2 = camera_params['distortion_parameters']['p2']
-    gamma1 = camera_params['projection_parameters']['gamma1']
-    gamma2 = camera_params['projection_parameters']['gamma2']
-    u0 = camera_params['projection_parameters']['u0']
-    v0 = camera_params['projection_parameters']['v0']
+    xi = camera_params['xi']
+    k1 = camera_params['k1']
+    k2 = camera_params['k2']
+    p1 = camera_params['p1']
+    p2 = camera_params['p2']
+    fx = camera_params['fx']
+    fy = camera_params['fy']
+    cx = camera_params['cx']
+    cy = camera_params['cy']
 
     erp_width, erp_height = erp_img.shape[1], erp_img.shape[0]
 
@@ -517,13 +560,13 @@ def erp_to_fisheye_mei(erp_img, camera_params, rotate):
     p_v += p1*(ro2 + 2*p_v*p_v) + 2*p2*p_u*p_v
 
     # apply projection
-    p_u = gamma1*p_u + u0 
-    p_v = gamma2*p_v + v0
+    p_u = fx*p_u + cx 
+    p_v = fy*p_v + cy
 
     mask_dimention = (p_u < 0) | (p_u >= width) | (p_v < 0) | (p_v >= height)
     erp_masked = np.where(mask_dimention[..., np.newaxis], 0, erp_masked)
 
-    circle_mask = np.sqrt((p_u - u0)**2 + (p_v - v0)**2) > (min(height, width) / 2 - 0.025 * min(height, width))
+    circle_mask = np.sqrt((p_u - cx)**2 + (p_v - cy)**2) > (min(height, width) / 2 - 0.025 * min(height, width))
     erp_masked = np.where(circle_mask[..., np.newaxis], 0, erp_masked)
     
     coordinates = np.stack([p_u, p_v],axis=-1)

@@ -36,42 +36,31 @@ class KITTI360ERPDataset(BaseDataset):
         "camera_name": "image_02",
         "image_width": 1400,
         "image_height": 1400,
-        "mirror_parameters": {
-            "xi": 2.2134047507854890e+00
-        },
-        "distortion_parameters": {
-            "k1": 1.6798235660113681e-02,
-            "k2": 1.6548773243373522e+00,
-            "p1": 4.2223943394772046e-04,
-            "p2": 4.2462134260997584e-04
-        },
-        "projection_parameters": {
-            "gamma1": 1.3363220825849971e+03,
-            "gamma2": 1.3357883350012958e+03,
-            "u0": 7.1694323510126321e+02,
-            "v0": 7.0576498308221585e+02
-        }
+        "xi": 2.2134047507854890e+00,
+        "k1": 1.6798235660113681e-02,
+        "k2": 1.6548773243373522e+00,
+        "p1": 4.2223943394772046e-04,
+        "p2": 4.2462134260997584e-04,
+        "fx": 1.3363220825849971e+03,
+        "fy": 1.3357883350012958e+03,
+        "cx": 7.1694323510126321e+02,
+        "cy": 7.0576498308221585e+02
     }
+    
     camera_params_03 = {
         "model_type": "MEI",
         "camera_name": "image_03",
         "image_width": 1400,
         "image_height": 1400,
-        "mirror_parameters": {
-            "xi": 2.5535139132482758e+00
-        },
-        "distortion_parameters": {
-            "k1": 4.9370396274089505e-02,
-            "k2": 4.5068455478645308e+00,
-            "p1": 1.3477698472982495e-03,
-            "p2": -7.0340482615055284e-04
-        },
-        "projection_parameters": {
-            "gamma1": 1.4854388981875156e+03,
-            "gamma2": 1.4849477411748708e+03,
-            "u0": 6.9888316784030962e+02,
-            "v0": 6.9814541887723055e+02
-        }
+        "xi": 2.5535139132482758e+00,
+        "k1": 4.9370396274089505e-02,
+        "k2": 4.5068455478645308e+00,
+        "p1": 1.3477698472982495e-03,
+        "p2": -7.0340482615055284e-04,
+        "fx": 1.4854388981875156e+03,
+        "fy": 1.4849477411748708e+03,
+        "cx": 6.9888316784030962e+02,
+        "cy": 6.9814541887723055e+02
     }
     
     min_depth = 0.01
@@ -112,8 +101,8 @@ class KITTI360ERPDataset(BaseDataset):
 
         if self.load_attn_mask:
             # Prepare the mask for fisheye images to remove the ego-car border
-            self.mask_fisheye02 = (np.load(os.path.join(base_path, 'fisheye', 'mask_left_fisheye.npy'))==0).astype(np.uint8)
-            self.mask_fisheye03 = (np.load(os.path.join(base_path, 'fisheye', 'mask_right_fisheye.npy'))==0).astype(np.uint8)
+            self.mask_fisheye02 = (np.load(os.path.join('splits', 'kitti360', 'mask_left_fisheye.npy'))==0).astype(np.uint8)
+            self.mask_fisheye03 = (np.load(os.path.join('splits', 'kitti360', 'mask_right_fisheye.npy'))==0).astype(np.uint8)
             # Convert fisheye masks to erp masks
             # if self.erp:
             self.mask_fisheye02 = fisheye_mei_to_erp(self.mask_fisheye02, self.camera_params_02, self.fwd_sz)

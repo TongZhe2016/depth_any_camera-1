@@ -76,7 +76,7 @@ We highlight the **best** and *second best* results in **bold** and *italic* res
 - [x] Testing and evaluation pipeline of zero-shot metric depth estimation on perspective, fisheye and 360 datasets.
 - [x] Release of pre-trained DAC models from moderate size training data.
 - [x] Complete data preparation and curation scripts.
-- [TBD] Foundation-level model trained from large scale mixture of datasets, including perspective, fishey, 360 camera data in training.
+- [TBD] Foundation-level model trained from large scale mixture of datasets, including perspective, fisheye, 360 camera data in training.
 
 
 # Usage
@@ -106,7 +106,6 @@ source post-entry-hooks.sh
 ### Conda Installation
 Alternatively, this repository can be run from within Conda alone.
 ```bash
-
 conda create -n dac python=3.9 -y
 conda activate dac
 pip install torch==1.13.1+cu116 torchvision==0.14.1+cu116 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu116
@@ -142,12 +141,13 @@ We provide two indoor models and two outdoor modeling considering Resnet101 and 
 
 ## Demo
 
-We have provided a ready-to-run demo script at `demo/demo_indoor.py`. This script demonstrates how to perform inference on various types of camera data, including ScanNet++ (fisheye), Matterport3D (360), and NYU (perspective), using a single metric depth model trained on perspective images. The code generates point cloud files `*.ply` and visualization results as shown below:
+We have provided a ready-to-run demo scripts in the `demo` folder. `demo/demo_dac_indoor.py` demonstrates how to perform inference on various types of camera data, including ScanNet++ (fisheye), Matterport3D (360), and NYU (perspective), using a single metric depth model trained on perspective images. The code generates point cloud files `*.ply` and visualization results as shown below:
 
 <p align="center">
   <img src="demo/output/scannetpp_output_remap_subplot.jpg" alt="demo output" style="width: 70%;">
 </p>
 
+`demo/demo_dac_outdoor.py` similarly demonstrates how a single outdoor model handle different types of camera data, including kitti (perspective) and kitti360 (fisheye).
 
 ## Testing
 
@@ -232,7 +232,7 @@ This software is released under MIT license. You can view a license summary [her
 
 If you find our work useful in your research please consider citing our publication:
 ```bibtex
-@inproceedings{guo2025depthanycamera,
+@inproceedings{Guo2025DepthAnyCamera,
   title={Depth Any Camera: Zero-Shot Metric Depth Estimation from Any Camera},
   author={Yuliang Guo and Sparsh Garg and S. Mahdi H. Miangoleh and Xinyu Huang and Liu Ren},
   booktitle={arXiv},

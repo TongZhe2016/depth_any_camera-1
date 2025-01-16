@@ -362,11 +362,11 @@ def visualize_results(batch, preds, out_dir, config, data_dir, save_pcd=False, i
             out_w = 700
             fisheye_file = batch['info']['image_filename'][0]
             if 'image_02' in fisheye_file:
-                grid_fisheye = np.load(os.path.join(data_dir, 'fisheye', 'grid_fisheye_02.npy'))
-                mask_fisheye = np.load(os.path.join(data_dir, 'fisheye', 'mask_left_fisheye.npy'))
+                grid_fisheye = np.load(os.path.join('splits', 'kitti360', 'grid_fisheye_02.npy'))
+                mask_fisheye = np.load(os.path.join('splits', 'kitti360', 'mask_left_fisheye.npy'))
             elif 'image_03' in fisheye_file:
-                grid_fisheye = np.load(os.path.join(data_dir, 'fisheye', 'grid_fisheye_03.npy'))
-                mask_fisheye = np.load(os.path.join(data_dir, 'fisheye', 'mask_right_fisheye.npy'))
+                grid_fisheye = np.load(os.path.join('splits', 'kitti360', 'grid_fisheye_03.npy'))
+                mask_fisheye = np.load(os.path.join('splits', 'kitti360', 'mask_right_fisheye.npy'))
             grid_isnan = cv2.resize(grid_fisheye[:, :, 3], (out_w, out_h), interpolation=cv2.INTER_NEAREST)
             grid_fisheye = cv2.resize(grid_fisheye[:, :, :3], (out_w, out_h))
             grid_fisheye = np.concatenate([grid_fisheye, grid_isnan[:, :, None]], axis=2)

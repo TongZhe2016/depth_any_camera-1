@@ -12,7 +12,7 @@
             }
         },
         {
-            "name": "Python Debugger: demo",
+            "name": "Python Debugger: demo indoor",
             "type": "debugpy",
             "request": "launch",
             "program": "demo/demo_dac_indoor.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
@@ -22,6 +22,24 @@
                 "checkpoints/dac_swinl_indoor.json",  // the model config
                 "--model-file",
                 "checkpoints/dac_swinl_indoor.pt",  // the model checkpoint
+                "--out-dir",
+                "demo/output",
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
+        {
+            "name": "Python Debugger: demo outdoor",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "demo/demo_dac_outdoor.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "checkpoints/dac_swinl_outdoor.json",  // the model config
+                "--model-file",
+                "checkpoints/dac_swinl_outdoor.pt",  // the model checkpoint
                 "--out-dir",
                 "demo/output",
             ],

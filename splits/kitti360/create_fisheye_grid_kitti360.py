@@ -58,8 +58,8 @@ if __name__=="__main__":
     import cv2
     import matplotlib.pyplot as plt
 
-    kitti360Path = 'datasets/kitti360/'
-    cam_id = 3
+    output_path = 'splits/kitti360/'
+    cam_id = 2
     # perspective
     if cam_id == 2:
         camera = camera_params_02
@@ -68,8 +68,9 @@ if __name__=="__main__":
     else:
         raise RuntimeError('Invalid Camera ID!')
 
-    H = 1400
-    W = 1400
+    resize_factor = 0.5
+    H = int(1400 * resize_factor)
+    W = int(1400 * resize_factor)
     # [H, W]
     u, v = np.meshgrid(np.arange(W), np.arange(H))
     # [H*W]
@@ -88,14 +89,14 @@ if __name__=="__main__":
     k2 = camera['distortion_parameters']['k2']
     p1 = camera['distortion_parameters']['p1']
     p2 = camera['distortion_parameters']['p2']
-    gamma1 = camera['projection_parameters']['gamma1']
-    gamma2 = camera['projection_parameters']['gamma2']
-    u0 = camera['projection_parameters']['u0']
-    v0 = camera['projection_parameters']['v0']
+    gamma1 = camera['projection_parameters']['gamma1'] * resize_factor
+    gamma2 = camera['projection_parameters']['gamma2'] * resize_factor
+    u0 = camera['projection_parameters']['u0'] * resize_factor
+    v0 = camera['projection_parameters']['v0'] * resize_factor
     mirror = camera['mirror_parameters']['xi']
 
-    # ATTENTION, the range of ro2 can go beyond 1.0 for fisheye cameras, set it properly
-    for ro2 in torch.linspace(0.0, 1.0, 200000):
+    # ATTENTION, the range of ro2 can go beyond 1.0 for fisheye cameras, set it properly to reduce error
+    for ro2 in torch.linspace(0.0, 5.0, 400000):
         ro2_after = np.sqrt(ro2) * (1 + k1*ro2 + k2*ro2*ro2)
         map_dist.append([(1 + k1*ro2 + k2*ro2*ro2), ro2_after])
     map_dist = np.array(map_dist)
@@ -133,8 +134,8 @@ if __name__=="__main__":
         return xy
 
     xys = []
-    for i in range(1400):
-        xy = chunk(grid[:, i*1400:(i+1)*1400].cuda())
+    for i in range(H):
+        xy = chunk(grid[:, i*W:(i+1)*W].cuda())
         xys.append(xy.permute(1, 0))
         if i % 10 == 0:
             print(i)
@@ -145,7 +146,7 @@ if __name__=="__main__":
     z[isnan] = 1.
     pcd = torch.cat((xys, z[:, None], isnan[:, None]), dim=1)
     print("saving grid")
-    np.save(f'grid_fisheye_0{cam_id}.npy', pcd.detach().cpu().numpy().reshape(1400, 1400, 4))
+    np.save(f'{output_path}/grid_fisheye_0{cam_id}.npy', pcd.detach().cpu().numpy().reshape(H, W, 4))
 
     """
         Treating each ray as a point on an unit sphere, apply forward distortion and project to compute the approximation error using the lookup table
@@ -176,7 +177,7 @@ if __name__=="__main__":
 
     error = (x - grid[0].cuda()) ** 2 + (y - grid[1].cuda()) ** 2
 
-    error_map = error.reshape(1400, 1400).detach().cpu().numpy()
+    error_map = error.reshape(H, W).detach().cpu().numpy()
     error_map = np.clip(error_map, 0, 30)
     plt.imshow(error_map)
     plt.show()

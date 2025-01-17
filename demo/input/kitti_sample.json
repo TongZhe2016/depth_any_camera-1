@@ -1,0 +1,18 @@
+{
+    "dataset_name": "kitti",
+    "image_filename": "demo/input/kitti_rgb.png",
+    "annotation_filename_depth": "demo/input/kitti_depth.png",
+    "depth_scale": 256.0,
+    "fishey_grid": null,
+    "crop_wFoV": 100,
+    "fwd_sz": [300, 1000],
+    "erp": false,
+    "cam_params": {
+        "dataset": "kitti",
+        "fx": 718.856,
+        "fy": 718.856,
+        "cx": 607.1928,
+        "cy": 185.2157,
+        "camera_model": "PINHOLE"
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "dataset_name": "nyu",
+    "image_filename": "demo/input/nyu_rgb.jpg",
+    "annotation_filename_depth": "demo/input/nyu_depth.png",
+    "depth_scale": 1000,
+    "fishey_grid": null,
+    "crop_wFoV": 70,
+    "fwd_sz": [480, 640],
+    "erp": false,
+    "cam_params": {
+        "dataset": "nyu",
+        "fx": 5.1885790117450188e+02,
+        "fy": 5.1946961112127485e+02,
+        "cx": 3.2558244941119034e+02,
+        "cy": 2.5373616633400465e+02,
+        "camera_model": "PINHOLE"
+    }
+}

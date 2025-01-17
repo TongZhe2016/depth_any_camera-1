@@ -149,6 +149,12 @@ We have provided a ready-to-run demo scripts in the `demo` folder. `demo/demo_da
 
 `demo/demo_dac_outdoor.py` similarly demonstrates how a single outdoor model handle different types of camera data, including kitti (perspective) and kitti360 (fisheye).
 
+Instead, we also provide demo script for dealing one sample, you may follow the following example command:
+
+```bash
+python demo/demo_dac_single.py --config-file checkpoints/dac_swinl_indoor.json --model-file checkpoints/dac_swinl_indoor.pt --sample-file demo/input/scannetpp_sample.json --out-dir demo/output
+```
+
 ## Testing
 
 Given provided pretrained models saved in `checkpoints/`, the following code can be run to test and evaluate on certain dataset, e.g., ScanNet++:

@@ -47,6 +47,26 @@
                 "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
             }
         },
+        {
+            "name": "Python Debugger: demo single sample",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "demo/demo_dac_single.py",   // test_dac.py for DAC model, test_persp.py for original IDisc model
+            "console": "integratedTerminal",
+            "args": [
+                "--config-file",
+                "checkpoints/dac_swinl_indoor.json",  // the model config
+                "--model-file",
+                "checkpoints/dac_swinl_indoor.pt",  // the model checkpoint
+                "--sample-file",  
+                "demo/input/scannetpp_sample.json", // a json file describing a sample data
+                "--out-dir",
+                "demo/output",
+            ],
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"
+            }
+        },
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////              Test            /////////////////////////////////////

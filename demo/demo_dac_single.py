@@ -26,55 +26,6 @@ from dac.utils.erp_geometry import erp_patch_to_cam_fast, cam_to_erp_patch_fast,
 from dac.dataloders.dataset import resize_for_input
 import torchvision.transforms.functional as TF
 
-##################################################################################################################
-######################## samples for the demo of kitti360(fisheye), and kitti(perspective) #######################
-##################################################################################################################
-
-SAMPLE_1 = {
-    "dataset_name": "kitti360",
-    "image_filename": "demo/input/kitti360_rgb.png",
-    "annotation_filename_depth": "demo/input/kitti360_depth.png",
-    "depth_scale": 256.0,
-    "fishey_grid": "splits/kitti360/grid_fisheye_02.npy",
-    "fwd_sz": (700, 700), # the patch size input to the model
-    "erp": False,
-    "cam_params": {
-        'dataset':'kitti360',
-        "fx": 1.3363220825849971e+03,
-        "fy": 1.3357883350012958e+03,
-        "cx": 7.1694323510126321e+02,
-        "cy": 7.0576498308221585e+02,
-        "xi": 2.2134047507854890e+00,
-        "k1": 1.6798235660113681e-02,
-        "k2": 1.6548773243373522e+00,
-        "p1": 4.2223943394772046e-04,
-        "p2": 4.2462134260997584e-04,
-        # "w": 1400,
-        # "h": 1400,
-        "camera_model": "MEI",
-    }
-}
-
-SAMPLE_2 = {
-    "dataset_name": "kitti",
-    "image_filename": "demo/input/kitti_rgb.png",
-    "annotation_filename_depth": "demo/input/kitti_depth.png",
-    "depth_scale": 256.0,
-    "fishey_grid": None,
-    "crop_wFoV": 100, # degree decided by origianl data fov + some buffer
-    "fwd_sz": (300, 1000), # the patch size input to the model
-    "erp": False,
-    "cam_params": {
-        'dataset': 'kitti',
-        'fx': 7.188560e02,
-        'fy': 7.188560e02,
-        'cx': 6.071928e02,
-        'cy': 1.852157e02,
-        # "w": 1242,
-        # "h": 375,
-        "camera_model": "PINHOLE",
-    }
-}
 
 def demo_one_sample(model, model_name, device, sample, cano_sz, args: argparse.Namespace):
     #######################################################################
@@ -99,12 +50,18 @@ def demo_one_sample(model, model_name, device, sample, cano_sz, args: argparse.N
     fwd_sz=sample["fwd_sz"]
     
     if not sample["erp"]:
-        # convert depth from zbuffer to euclid. Skip kitti360 because we prepared the depth already euclidean.
+        # convert depth from zbuffer to euclid 
         if dataset_name in ['nyu', 'kitti']:
             x, y = np.meshgrid(np.arange(depth.shape[1]), np.arange(depth.shape[0]))
             depth = depth * np.sqrt((x - sample["cam_params"]['cx'])**2 + (y - sample["cam_params"]['cy'])**2 + sample["cam_params"]['fx']**2) / sample["cam_params"]['fx']
             depth = depth.astype(np.float32)
-        
+        elif dataset_name == 'scannetpp': # Very critical for scannet++ fisheye. Skip kitti360 because we prepared the depth already in euclid.
+            # For fisheye, converting back to euclid with undistorted ray direction via the ray lookup table for efficiency
+            fisheye_grid = np.load(sample["fishey_grid"])
+            fisheye_grid_z = cv2.resize(fisheye_grid[:, :, 2], (depth.shape[1], depth.shape[0]), interpolation=cv2.INTER_CUBIC)
+            depth = depth / fisheye_grid_z
+            depth = depth.astype(np.float32)
+            
         if dataset_name == 'kitti360':
             # convert fisheye to erp (do not use the gnomonic projection, which is limited to FOV < 180 degree)
             image = fisheye_mei_to_erp(image, sample["cam_params"], (image.shape[0], image.shape[1]))
@@ -133,7 +90,7 @@ def demo_one_sample(model, model_name, device, sample, cano_sz, args: argparse.N
             )
             lat_range = torch.tensor([float(np.min(latitude)), float(np.max(latitude))])
             long_range = torch.tensor([float(np.min(longitude)), float(np.max(longitude))])
-            
+                
         # resizing process to fwd_sz.
         image, depth, pad, pred_scale_factor, attn_mask = resize_for_input((image * 255.).astype(np.uint8), depth, fwd_sz, None, [image.shape[0], image.shape[1]], 1.0, padding_rgb=[0, 0, 0], mask=erp_mask)
     else:
@@ -273,28 +230,13 @@ def demo_one_sample(model, model_name, device, sample, cano_sz, args: argparse.N
             arel_max=vis_arel_max
             )        
 
-
-def main(config: Dict[str, Any], args: argparse.Namespace):
-    device = torch.device("cuda") if tcuda.is_available() else torch.device("cpu")
-    model = eval(config["model_name"]).build(config)
-    model.load_pretrained(args.model_file)
-    model = model.to(device)
-    model.eval()
-    cano_sz=config["cano_sz"] # the ERP size model was trained on
-
-    
-    samples = [SAMPLE_1, SAMPLE_2]
-    for i, sample in enumerate(samples):
-        print(f"demo for sample {i}: {sample['dataset_name']}")
-        demo_one_sample(model, config["model_name"], device, sample, cano_sz, args)
-    print("Demo finished")
-
 if __name__ == "__main__":
     # Arguments
     parser = argparse.ArgumentParser(description="Testing", conflict_handler="resolve")
 
-    parser.add_argument("--config-file", type=str, default="checkpoints/dac_swinl_outdoor.json")
-    parser.add_argument("--model-file", type=str, default="checkpoints/dac_swinl_outdoor.pt")
+    parser.add_argument("--config-file", type=str, default="checkpoints/dac_swinl_indoor.json")
+    parser.add_argument("--model-file", type=str, default="checkpoints/dac_swinl_indoor.pt")
+    parser.add_argument("--sample-file", type=str, default='demo/input/scannetpp_sample.json')
     parser.add_argument("--out-dir", type=str, default='demo/output')
     # parser.add_argument("--save-pcd", action="store_true")
 
@@ -302,4 +244,15 @@ if __name__ == "__main__":
     with open(args.config_file, "r") as f:
         config = json.load(f)
 
-    main(config, args)
+    device = torch.device("cuda") if tcuda.is_available() else torch.device("cpu")
+    model = eval(config["model_name"]).build(config)
+    model.load_pretrained(args.model_file)
+    model = model.to(device)
+    model.eval()
+    cano_sz=config["cano_sz"] # the ERP size model was trained on
+
+    with open(args.sample_file, "r") as f:
+        sample = json.load(f)
+    print(f"demo for sample from {sample['dataset_name']}")
+    demo_one_sample(model, config["model_name"], device, sample, cano_sz, args)
+    print("Demo finished")

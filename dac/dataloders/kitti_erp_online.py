@@ -154,6 +154,7 @@ class KITTIERPOnlineDataset(BaseDataset):
         cam_intrinsics = self.CAM_INTRINSIC[image_path.split("/")[2]][:, :3]
         cam_params = {
             'dataset': 'kitti',
+            'camera_model': 'PINHOLE',
             'wFOV': np.arctan(1242 / 2 / cam_intrinsics[0, 0]) * 2,
             'hFOV': np.arctan(375 / 2 / cam_intrinsics[1, 1]) * 2,
             'width': 1242,

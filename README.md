@@ -72,11 +72,12 @@ We highlight the **best** and *second best* results in **bold** and *italic* res
 
 ## Catalog
 
-- [x] Pytorch implementation of DepthAnyCamera (DAC) training from mix of perspective camera data.
-- [x] Testing and evaluation pipeline of zero-shot metric depth estimation on perspective, fisheye and 360 datasets.
-- [x] Release of pre-trained DAC models from moderate size training data.
+- [x] Release of pre-trained DepthAnyCamera (DAC) models trained on moderately sized datasets.
+- [x] Demo code for easy setup and usage.
+- [x] Testing and evaluation pipeline for zero-shot metric depth estimation on perspective, fisheye, and 360-degree datasets.
+- [x] Complete DepthAnyCamera (DAC) training pipeline using mixed perspective camera data.
 - [x] Complete data preparation and curation scripts.
-- [TBD] Foundation-level model trained from large scale mixture of datasets, including perspective, fisheye, 360 camera data in training.
+- [TBD] Foundation-level model trained on a large-scale, diverse dataset mixture, encompassing perspective, fisheye, and 360-degree camera data.
 
 
 # Usage

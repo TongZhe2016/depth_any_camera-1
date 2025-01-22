@@ -132,15 +132,16 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
         torch.linspace(theta - wFOV_tgt/2, theta + wFOV_tgt/2, patch_w))
     lon_grid = lon_grid.float().reshape(1, -1)  # .repeat(num_rows*num_cols, 1)
     lat_grid = lat_grid.float().reshape(1, -1)  # .repeat(num_rows*num_cols, 1)
-    
+        
     # TODO: lat_grid may need cap to -pi/2 and pi/2 if crop size is large and pitch angle is large
-
     # compute corresponding perp image coordinates via Gnomonic Project explicitly (x, y given sphere radius 1 or f=1 perspective image)
     cos_c = torch.sin(cp[..., 1]) * torch.sin(lat_grid) + torch.cos(cp[..., 1]) * torch.cos(lat_grid) * torch.cos(
         lon_grid - cp[..., 0])
-    new_x = (torch.cos(lat_grid) * torch.sin(lon_grid - cp[..., 0])) / cos_c
-    new_y = (torch.cos(cp[..., 1]) * torch.sin(lat_grid) - torch.sin(cp[..., 1]) * torch.cos(lat_grid) * torch.cos(
-        lon_grid - cp[..., 0])) / cos_c
+    x_num = (torch.cos(lat_grid) * torch.sin(lon_grid - cp[..., 0]))
+    y_num = (torch.cos(cp[..., 1]) * torch.sin(lat_grid) - torch.sin(cp[..., 1]) * torch.cos(lat_grid) * torch.cos(
+        lon_grid - cp[..., 0]))
+    new_x = x_num / cos_c
+    new_y = y_num / cos_c
 
     # OPTIONAL: apply camera roll correction
     if roll is not None:
@@ -150,7 +151,7 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
         new_x = new_x_tmp
         new_y = new_y_tmp
 
-    # Scale augmentation can just modify new_x and new_y directly, with depth factor (TODO: should this be applied before projection? should not affect perspective projection)
+    # Scale augmentation can just modify new_x and new_y directly, with depth factor
     if scale_fac is not None:
         new_x *= scale_fac
         new_y *= scale_fac
@@ -159,7 +160,7 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
 
     # Important: this normalization needs to use the source perspective image FOV, for the grid sample function range [-1, 1]
     # Gnomonic Projection for OPENCV_FISHEYE model, only works for FOV < 180 degree
-    if cam_params['dataset'] == 'scannetpp' or cam_params['camera_model'] == 'OPENCV_FISHEYE':    
+    if 'camera_model' in cam_params.keys() and cam_params['camera_model'] == 'OPENCV_FISHEYE':    
         """
             Apply opencv distortion (Refer to: OpenCV)
         """
@@ -172,14 +173,19 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
         cx = cam_params['cx']
         cy = cam_params['cy']
 
-        r = np.sqrt(new_x*new_x + new_y*new_y)
-        theta = np.arctan(r)
+        # Option 1: original opencv fisheye distortion can not handle FOV >=180 degree or cos_c <= 0
+        # r = np.sqrt(new_x*new_x + new_y*new_y)
+        # theta = np.arctan(r)
+        # theta_d = theta * (1 + k1*theta*theta + k2*theta**4 + k3*theta**6 + k4*theta**8)        
+        # x_d = theta_d * new_x / (r+1e-9)
+        # y_d = theta_d * new_y / (r+1e-9)
 
-        # apply distortion
+        # Option 2: A more numerically stable version able to handle FOV >=180 degree, adapted for Gnomonic Projection
+        r = np.sqrt(x_num*x_num + y_num*y_num)
+        theta = np.arccos(cos_c)
         theta_d = theta * (1 + k1*theta*theta + k2*theta**4 + k3*theta**6 + k4*theta**8)
-        
-        x_d = theta_d * new_x / (r+1e-9)
-        y_d = theta_d * new_y / (r+1e-9)
+        x_d = theta_d * x_num / (r)
+        y_d = theta_d * y_num / (r)
         
         # project to image coordinates
         new_x = fx * x_d + cx
@@ -194,7 +200,7 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
         new_y /= (img_h/2)
         
     # Gnomonic Projection for MEI model, but only works for FOV < 180 degree (kitti360 is slightly beyond 180)
-    elif cam_params['camera_model'] == 'MEI':
+    elif 'camera_model' in cam_params.keys() and cam_params['camera_model'] == 'MEI':
         xi = cam_params['xi']
         k1 = cam_params['k1']
         k2 = cam_params['k2']
@@ -205,14 +211,9 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
         cx = cam_params['cx']
         cy = cam_params['cy']
         
-        # use spherical coordinates directly to avoid sigularity
-        # TODO: convert lon to scope [-pi, 0]? Need to debug on other datasets
-        x = np.cos(lat_grid) * np.cos(lon_grid - PI_2)
-        z = np.cos(lat_grid) * np.sin(lon_grid - PI_2)
-        y = np.sin(lat_grid)
-        
-        p_u = x / (z + xi)
-        p_v = y / (z + xi)
+        # Adpated for Gnomonic Projection
+        p_u = x_num / (cos_c + xi)
+        p_v = y_num / (cos_c + xi)
 
         # apply distortion
         ro2 = p_u*p_u + p_v*p_v
@@ -241,7 +242,7 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
     #     fy = cam_params['fy']
     #     cx = cam_params['cx']
     #     cy = cam_params['cy']
-        
+    #
     #     """
     #         Apply distortion (Refer to: NYUv2 Toolbox and http://www.vision.caltech.edu/bouguetj/calib_doc/)
     #     """

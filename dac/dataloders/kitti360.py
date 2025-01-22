@@ -33,7 +33,8 @@ class KITTI360Dataset(BaseDataset):
     }
     
     camera_params_02 = {
-        "model_type": "MEI",
+        "dataset": "kitti360",
+        "camera_model": "MEI",
         "camera_name": "image_02",
         "image_width": 1400,
         "image_height": 1400,
@@ -49,7 +50,8 @@ class KITTI360Dataset(BaseDataset):
     }
     
     camera_params_03 = {
-        "model_type": "MEI",
+        "dataset": "kitti360",
+        "camera_model": "MEI",
         "camera_name": "image_03",
         "image_width": 1400,
         "image_height": 1400,

@@ -36,6 +36,7 @@ SAMPLE_1 = {
     "annotation_filename_depth": "demo/input/kitti360_depth.png",
     "depth_scale": 256.0,
     "fishey_grid": "splits/kitti360/grid_fisheye_02.npy",
+    "crop_wFoV": 180, # degree decided by origianl data fov + some buffer
     "fwd_sz": (700, 700), # the patch size input to the model
     "erp": False,
     "cam_params": {
@@ -105,34 +106,25 @@ def demo_one_sample(model, model_name, device, sample, cano_sz, args: argparse.N
             depth = depth * np.sqrt((x - sample["cam_params"]['cx'])**2 + (y - sample["cam_params"]['cy'])**2 + sample["cam_params"]['fx']**2) / sample["cam_params"]['fx']
             depth = depth.astype(np.float32)
         
-        if dataset_name == 'kitti360':
-            # convert fisheye to erp (do not use the gnomonic projection, which is limited to FOV < 180 degree)
-            image = fisheye_mei_to_erp(image, sample["cam_params"], (image.shape[0], image.shape[1]))
-            depth = fisheye_mei_to_erp(depth, sample["cam_params"], (image.shape[0], image.shape[1]))
-            lat_range = torch.tensor([-np.pi/2, np.pi/2], dtype=torch.float32)
-            long_range = torch.tensor([-np.pi/2, np.pi/2], dtype=torch.float32)
-            image = image.astype(np.float32) / 255.0
-            erp_mask = np.ones_like(depth)
-        else:
-            phi = np.array(0).astype(np.float32)
-            roll = np.array(0).astype(np.float32)
-            theta = 0
+        phi = np.array(0).astype(np.float32)
+        roll = np.array(0).astype(np.float32)
+        theta = 0
 
-            image = image.astype(np.float32) / 255.0
-            depth = np.expand_dims(depth, axis=2)
-            mask_valid_depth = depth > 0.01
-                    
-            # Automatically calculate the erp crop size
-            crop_width = int(cano_sz[0] * sample["crop_wFoV"] / 180)
-            crop_height = int(crop_width * fwd_sz[0] / fwd_sz[1])
-            
-            # convert to ERP
-            image, depth, _, erp_mask, latitude, longitude = cam_to_erp_patch_fast(
-                image, depth, (mask_valid_depth * 1.0).astype(np.float32), theta, phi,
-                crop_height, crop_width, cano_sz[0], cano_sz[0]*2, sample["cam_params"], roll, scale_fac=None
-            )
-            lat_range = torch.tensor([float(np.min(latitude)), float(np.max(latitude))])
-            long_range = torch.tensor([float(np.min(longitude)), float(np.max(longitude))])
+        image = image.astype(np.float32) / 255.0
+        depth = np.expand_dims(depth, axis=2)
+        mask_valid_depth = depth > 0.01
+                
+        # Automatically calculate the erp crop size
+        crop_width = int(cano_sz[0] * sample["crop_wFoV"] / 180)
+        crop_height = int(crop_width * fwd_sz[0] / fwd_sz[1])
+        
+        # convert to ERP
+        image, depth, _, erp_mask, latitude, longitude = cam_to_erp_patch_fast(
+            image, depth, (mask_valid_depth * 1.0).astype(np.float32), theta, phi,
+            crop_height, crop_width, cano_sz[0], cano_sz[0]*2, sample["cam_params"], roll, scale_fac=None
+        )
+        lat_range = torch.tensor([float(np.min(latitude)), float(np.max(latitude))])
+        long_range = torch.tensor([float(np.min(longitude)), float(np.max(longitude))])
             
         # resizing process to fwd_sz.
         image, depth, pad, pred_scale_factor, attn_mask = resize_for_input((image * 255.).astype(np.uint8), depth, fwd_sz, None, [image.shape[0], image.shape[1]], 1.0, padding_rgb=[0, 0, 0], mask=erp_mask)

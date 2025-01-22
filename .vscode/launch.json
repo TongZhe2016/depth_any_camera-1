@@ -135,7 +135,7 @@
                 "datasets",
                 "--val-batch-sz",
                 "1",
-                "--vis",
+                // "--vis",
             ],
             "env": {
                 "PYTHONPATH": "${env:PYTHONPATH}:/home/yuliang/Projects/depth_any_camera"

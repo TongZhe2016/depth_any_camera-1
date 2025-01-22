@@ -11,7 +11,7 @@ import random
 from PIL import Image
 
 from .dataset import BaseDataset, resize_for_input
-from dac.utils.erp_geometry import fisheye_mei_to_erp
+from dac.utils.erp_geometry import fisheye_mei_to_erp, cam_to_erp_patch_fast
 
 class KITTI360ERPDataset(BaseDataset):
     CAM_INTRINSIC = {
@@ -32,7 +32,8 @@ class KITTI360ERPDataset(BaseDataset):
     }
     
     camera_params_02 = {
-        "model_type": "MEI",
+        "dataset": "kitti360",
+        "camera_model": "MEI",
         "camera_name": "image_02",
         "image_width": 1400,
         "image_height": 1400,
@@ -48,7 +49,8 @@ class KITTI360ERPDataset(BaseDataset):
     }
     
     camera_params_03 = {
-        "model_type": "MEI",
+        "dataset": "kitti360",
+        "camera_model": "MEI",
         "camera_name": "image_03",
         "image_width": 1400,
         "image_height": 1400,
@@ -104,7 +106,6 @@ class KITTI360ERPDataset(BaseDataset):
             self.mask_fisheye02 = (np.load(os.path.join('splits', 'kitti360', 'mask_left_fisheye.npy'))==0).astype(np.uint8)
             self.mask_fisheye03 = (np.load(os.path.join('splits', 'kitti360', 'mask_right_fisheye.npy'))==0).astype(np.uint8)
             # Convert fisheye masks to erp masks
-            # if self.erp:
             self.mask_fisheye02 = fisheye_mei_to_erp(self.mask_fisheye02, self.camera_params_02, self.fwd_sz)
             self.mask_fisheye03 = fisheye_mei_to_erp(self.mask_fisheye03, self.camera_params_03, self.fwd_sz)
             self.mask_fisheye02 = cv2.resize(self.mask_fisheye02, (self.fwd_sz[1], self.fwd_sz[0]), interpolation=cv2.INTER_NEAREST)
@@ -168,15 +169,36 @@ class KITTI360ERPDataset(BaseDataset):
             info["camera_intrinsics"] = self.CAM_INTRINSIC['03'][:, :3].clone()
             cam_params = self.camera_params_03
         
-        # convert fisheye to erp (do not use the gnomonic projection, which is limited to FOV < 180 degree)
-        image = fisheye_mei_to_erp(image, cam_params, (image.shape[0], image.shape[1]))
-        depth = fisheye_mei_to_erp(depth, cam_params, (image.shape[0], image.shape[1]))
-        lat_range = torch.tensor([-np.pi/2, np.pi/2], dtype=torch.float32)
-        long_range = torch.tensor([-np.pi/2, np.pi/2], dtype=torch.float32)
+        # # convert fisheye to erp (do not use the gnomonic projection ()
+        # image = fisheye_mei_to_erp(image, cam_params, (image.shape[0], image.shape[1]))
+        # depth = fisheye_mei_to_erp(depth, cam_params, (image.shape[0], image.shape[1]))
+        # lat_range = torch.tensor([-np.pi/2, np.pi/2], dtype=torch.float32)
+        # long_range = torch.tensor([-np.pi/2, np.pi/2], dtype=torch.float32)
+        
+        phi = np.array(0).astype(np.float32)
+        roll = np.array(0).astype(np.float32)
+        theta = 0
+
+        image = image.astype(np.float32) / 255.0
+        depth = np.expand_dims(depth, axis=2)
+        mask_valid_depth = depth > 0.01
+                
+        # Automatically calculate the erp crop size
+        crop_width = int(self.cano_sz[0])
+        crop_height = int(crop_width * self.fwd_sz[0] / self.fwd_sz[1])
+        
+        # convert to ERP
+        image, depth, _, erp_mask, latitude, longitude = cam_to_erp_patch_fast(
+            image, depth, (mask_valid_depth * 1.0).astype(np.float32), theta, phi,
+            crop_height, crop_width, self.cano_sz[0],  self.cano_sz[0]*2, cam_params, roll, scale_fac=None
+        )
+        lat_range = torch.tensor([float(np.min(latitude)), float(np.max(latitude))])
+        long_range = torch.tensor([float(np.min(longitude)), float(np.max(longitude))])
+        
         
         # resizing process to fwd_sz.
         to_cano_ratio = self.cano_sz[0] / image.shape[0]
-        image, depth, pad, pred_scale_factor = resize_for_input(image, depth, self.fwd_sz, info["camera_intrinsics"], self.cano_sz, to_cano_ratio)
+        image, depth, pad, pred_scale_factor, attn_mask = resize_for_input((image * 255.).astype(np.uint8), depth, self.fwd_sz, info["camera_intrinsics"], self.cano_sz, to_cano_ratio, mask=erp_mask)
         info['pred_scale_factor'] = info['pred_scale_factor'] * pred_scale_factor
         info['pad'] = pad
         if not self.test_mode:
@@ -190,7 +212,7 @@ class KITTI360ERPDataset(BaseDataset):
             else:
                 no_border_mask = None
         else:
-            no_border_mask = np.ones_like(depth)
+            no_border_mask = attn_mask > 0
 
         image, gts, info = self.transform(image=image, gts={"depth": depth, 'attn_mask': no_border_mask}, info=info)
                 

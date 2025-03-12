@@ -301,7 +301,37 @@ def save_val_imgs_v2(
         plt.savefig(os.path.join(save_dir, filename[:-4]+'_subplot.jpg'), dpi=200)
         # plt.close()
     return rgb
-        
+
+def save_val_imgs_v3(
+    iter: int, 
+    depth_pred: torch.tensor, 
+    rgb: torch.tensor, 
+    filename: str, 
+    save_dir: str, 
+    active_mask: torch.tensor=None,
+    valid_depth_mask: torch.tensor=None,
+    depth_max=20,
+    ):
+    """
+       Conbine predicted depth and rgb in a single image to save.
+    """
+    mean = np.array([123.675, 116.28, 103.53])[:, np.newaxis, np.newaxis]
+    std= np.array([58.395, 57.12, 57.375])[:, np.newaxis, np.newaxis]
+
+    depth_pred = depth_pred.squeeze().cpu().numpy()
+    rgb = rgb.squeeze().cpu().numpy()
+    rgb = ((rgb * std) + mean).astype(np.uint8)
+    if active_mask is not None:
+        active_mask = active_mask.squeeze().cpu().numpy()
+        rgb = rgb * (active_mask>0).astype(np.uint8)
+        depth_pred = depth_pred * (active_mask>0).astype(np.float32)
+    if valid_depth_mask is not None:
+        valid_depth_mask = valid_depth_mask.squeeze().cpu().bool().numpy()
+    rgb = rgb.transpose((1, 2, 0))
+    pred_vis = colorize(depth_pred, vmin=0, vmax=depth_max)
+    combined_img = np.concatenate((rgb, pred_vis), axis=1)
+    plt.imsave(os.path.join(save_dir, filename), combined_img)
+    return combined_img
         
 def visualize_results(batch, preds, out_dir, config, data_dir, save_pcd=False, index=0):
     save_img_dir = os.path.join(out_dir, 'val_imgs')

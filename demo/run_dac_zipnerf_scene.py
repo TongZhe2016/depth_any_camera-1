@@ -24,7 +24,7 @@ from dac.models.idisc_equi import IDiscEqui
 from dac.models.cnn_depth import CNNDepth
 from dac.utils.visualization import save_val_imgs_v3
 from dac.utils.erp_geometry import erp_patch_to_cam_fast, cam_to_erp_patch_fast
-from dac.utils.colmap_loader import read_intrinsics_text
+from dac.utils.colmap_loader import read_intrinsics_binary
 from dac.dataloders.dataset import resize_for_input
 
 
@@ -114,7 +114,7 @@ def run_one_sample(model, model_name, device, sample, cano_sz, save_img_dir, gri
         Currently work perfect with phi = 0. For larger phi, corners may have artifacts.
     """
     # set output size the same aspact ratio as raw image (no need to be same as fw_size)
-    cam_params={"dataset":"scannetpp"} # when grid table is available, no need for intrinsic parameters
+    cam_params={"dataset":"zipnerf"} # when grid table is available, no need for intrinsic parameters
 
     # scale the full erp_size depth scaling factor is equivalent to resizing data (given same aspect ratio)
     erp_h = cano_sz[0]
@@ -152,8 +152,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--config-file", type=str, default="checkpoints/dac_swinl_indoor.json")
     parser.add_argument("--model-file", type=str, default="checkpoints/dac_swinl_indoor.pt")
-    parser.add_argument("--data-dir", type=str, default="datasets/scannetpp/data/2a1a3afad9/dslr")
-    parser.add_argument("--resolution", "-r", type=int, default=2)
+    parser.add_argument("--data-dir", type=str, default="datasets/zipnerf/fisheye/alameda")
+    parser.add_argument("--resolution", "-r", type=int, default=4)
     parser.add_argument("--depth-scale", type=int, default=1000) # same as scannet++ original data process
     parser.add_argument("--vis", type=int, default=1)
 
@@ -169,8 +169,8 @@ if __name__ == "__main__":
     cano_sz=config["cano_sz"] # the ERP size model was trained on
 
     # laod the camera intrinsics of the scene
-    cameras_intrinsic_file = os.path.join(args.data_dir, "colmap", "cameras.txt")
-    cam_intrinsics = read_intrinsics_text(cameras_intrinsic_file)
+    cameras_intrinsic_file = os.path.join(args.data_dir, "sparse/0/cameras.bin")
+    cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
     intr = cam_intrinsics[1]
     
     save_img_dir = os.path.join(args.data_dir, "depth_dac")
@@ -178,9 +178,9 @@ if __name__ == "__main__":
     
     # load the ray lookup table for fisheye cameras, for wrapping the depth back to align original image
     try:
-        grid_fisheye = np.load(os.path.join(args.data_dir, "grid_fisheye.npy"))
+        grid_fisheye = np.load(os.path.join(args.data_dir, "sparse/0/grid_fisheye.npy"))
     except:
-        print("No fisheye grid found, please prepare the fisheye grid for the dataset first: splits/scannetpp/create_fisheye_grid_scannetpp.py")
+        print("No fisheye grid found, please prepare the fisheye grid for the dataset first: splits/zipnerf/create_fisheye_grid_zipnerf.py")
     out_sz = (int(intr.height / args.resolution), int(intr.width / args.resolution))
     grid_isnan = cv2.resize(grid_fisheye[:, :, 3], (out_sz[1], out_sz[0]), interpolation=cv2.INTER_NEAREST)
     grid_fisheye = cv2.resize(grid_fisheye[:, :, :3], (out_sz[1], out_sz[0]))
@@ -188,12 +188,12 @@ if __name__ == "__main__":
     
     # Prepare the sample for the model
     sample = {
-            "dataset_name": "scannetpp",
+            "dataset_name": "zipnerf",
             "crop_wFoV": 180, # degree decided by origianl data fov + some buffer
             "fwd_sz": [500, 750], # the patch size input to the model
             "out_sz": out_sz, # the final result saving size
             "cam_params": {
-                "dataset":"scannetpp",
+                "dataset":"zipnerf",
                 "fl_x": intr.params[0],
                 "fl_y": intr.params[1],
                 "cx": intr.params[2],
@@ -207,7 +207,7 @@ if __name__ == "__main__":
         }
     
     # Process all the images included in the scene
-    image_files = sorted(glob.glob(os.path.join(args.data_dir, "resized_images", "*.JPG")))
+    image_files = sorted(glob.glob(os.path.join(args.data_dir, "images", "*.JPG")))
     images_out = []
     for image_file in image_files:
         sample["image_filename"] = image_file

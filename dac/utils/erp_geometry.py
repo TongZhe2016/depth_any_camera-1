@@ -357,7 +357,7 @@ def erp_patch_to_cam_fast(img_erp, depth_erp, mask_valid_erp, theta, phi, out_h,
     
     # convert img grid to normalized camera coordinates
     # if cam_params['dataset'] in ['kitti360', 'nyu', 'scannetpp']: # use this if you want to consider nyu as fisheye, very slight distortion
-    if cam_params['dataset'] in ['kitti360', 'scannetpp']:
+    if cam_params['dataset'] in ['kitti360', 'scannetpp', 'zipnerf']:
         """_
             MEI model has no closed-form inversion, so we need to provide the lookup table for fast inversion
         """

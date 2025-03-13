@@ -29,6 +29,16 @@ Notably, DAC can be **trained exclusively on perspective images**, yet it genera
 
 **Tired of collecting new data for specific cameras?** DAC maximizes the utility of every existing 3D data for training, regardless of the specific camera types used in new applications.
 
+## News
+
+- 2005-03-12: Add scripts to run fisheye scenes of ZipNeRF and ScanNet++ datasets. Results are downloadable from [ZipNeRF DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/zipnerf_dac_swinl_indoor_2025_01.zip), and [ScanNet++ DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/scannetpp_dac_swinl_indoor_2025_01.zip) to facilitate NeRF and Gaussian Splatting development.
+- 2005-01-21: Demo code for easy setup and usage.
+- 2005-01-13: Release of pre-trained DepthAnyCamera (DAC) models trained on moderately sized datasets.
+- 2005-01-13: Testing and evaluation pipeline for zero-shot metric depth estimation on perspective, fisheye, and 360-degree datasets.
+- 2005-01-13: Complete DepthAnyCamera (DAC) training pipeline using mixed perspective camera data.
+- 2005-01-13: Complete data preparation and curation scripts.
+- [TBD] Foundation-level model trained on a large-scale, diverse dataset mixture, encompassing perspective, fisheye, and 360-degree camera data.
+
 ## Visualization
 
 ### ScanNet++ fisheye
@@ -68,16 +78,6 @@ We highlight the **best** and *second best* results in **bold** and *italic* res
 <!-- ## Pipeline
 
 ![pipeline](docs/pipeline.png) -->
-
-
-## Catalog
-
-- [x] Release of pre-trained DepthAnyCamera (DAC) models trained on moderately sized datasets.
-- [x] Demo code for easy setup and usage.
-- [x] Testing and evaluation pipeline for zero-shot metric depth estimation on perspective, fisheye, and 360-degree datasets.
-- [x] Complete DepthAnyCamera (DAC) training pipeline using mixed perspective camera data.
-- [x] Complete data preparation and curation scripts.
-- [TBD] Foundation-level model trained on a large-scale, diverse dataset mixture, encompassing perspective, fisheye, and 360-degree camera data.
 
 
 # Usage
@@ -155,6 +155,23 @@ Instead, we also provide demo script for dealing one sample, you may follow the 
 ```bash
 python demo/demo_dac_single.py --config-file checkpoints/dac_swinl_indoor.json --model-file checkpoints/dac_swinl_indoor.pt --sample-file demo/input/scannetpp_sample.json --out-dir demo/output
 ```
+
+## Run on ZipNeRF (fisheye) and ScanNet++ (fisheye) Scenes
+
+To better facilitate the development of Neural Reconstruction technique on fisheye inputs, e.g., [SMERF](https://smerf-3d.github.io/), [Fisheye GS](https://github.com/zmliao/Fisheye-GS), and [EVER](https://github.com/half-potato/ever_training), we provide scripts to conduct depth estimation on fisheye images for a whole scene folder.
+
+```bash
+python demo/run_dac_zipnerf_scene.py
+python demo/run_dac_scannetpp_scene.py
+```
+
+Our depth results can be directly downloaded from [ZipNeRF DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/zipnerf_dac_swinl_indoor_2025_01.zip), and [ScanNet++ DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/scannetpp_dac_swinl_indoor_2025_01.zip). The results folder can be simply merged with the original dataset for further usage. The predicted depth maps are saved in uint16 images, with visualization as shown below.
+
+<p align="center">
+  <img src="docs/zipnerf_alameda_vis.gif" alt="animated" style="width: 85%;"/>
+</p>
+
+
 
 ## Testing
 

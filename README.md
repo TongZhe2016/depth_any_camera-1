@@ -31,12 +31,12 @@ Notably, DAC can be **trained exclusively on perspective images**, yet it genera
 
 ## News
 
-- 2005-03-12: Add scripts to run fisheye scenes of ZipNeRF and ScanNet++ datasets. Results are downloadable from [ZipNeRF DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/zipnerf_dac_swinl_indoor_2025_01.zip), and [ScanNet++ DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/scannetpp_dac_swinl_indoor_2025_01.zip) to facilitate NeRF and Gaussian Splatting development.
-- 2005-01-21: Demo code for easy setup and usage.
-- 2005-01-13: Release of pre-trained DepthAnyCamera (DAC) models trained on moderately sized datasets.
-- 2005-01-13: Testing and evaluation pipeline for zero-shot metric depth estimation on perspective, fisheye, and 360-degree datasets.
-- 2005-01-13: Complete DepthAnyCamera (DAC) training pipeline using mixed perspective camera data.
-- 2005-01-13: Complete data preparation and curation scripts.
+- 2025-03-12: Add scripts to run fisheye scenes of ZipNeRF and ScanNet++ datasets. Results are downloadable from [ZipNeRF DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/zipnerf_dac_swinl_indoor_2025_01.zip), and [ScanNet++ DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/scannetpp_dac_swinl_indoor_2025_01.zip) to facilitate NeRF and Gaussian Splatting development.
+- 2025-01-21: Demo code for easy setup and usage.
+- 2025-01-13: Release of pre-trained DepthAnyCamera (DAC) models trained on moderately sized datasets.
+- 2025-01-13: Testing and evaluation pipeline for zero-shot metric depth estimation on perspective, fisheye, and 360-degree datasets.
+- 2025-01-13: Complete DepthAnyCamera (DAC) training pipeline using mixed perspective camera data.
+- 2025-01-13: Complete data preparation and curation scripts.
 - [TBD] Foundation-level model trained on a large-scale, diverse dataset mixture, encompassing perspective, fisheye, and 360-degree camera data.
 
 ## Visualization

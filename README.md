@@ -13,6 +13,8 @@
 <a href='https://yuliangguo.github.io/depth-any-camera/'><img src='https://img.shields.io/badge/Project_Page-Depth Any Camera-green' alt='Project Page'></a>
 <a href='https://huggingface.co/yuliangguo/depth-any-camera'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-yellow'></a>
 
+[**CVPR 2025**](https://cvpr.thecvf.com/Conferences/2025)
+
 </div>
 
 
@@ -32,6 +34,7 @@ Notably, DAC can be **trained exclusively on perspective images**, yet it genera
 ## News
 
 - 2025-03-12: Add scripts to run fisheye scenes of ZipNeRF and ScanNet++ datasets. Results are downloadable from [ZipNeRF DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/zipnerf_dac_swinl_indoor_2025_01.zip), and [ScanNet++ DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/scannetpp_dac_swinl_indoor_2025_01.zip) to facilitate NeRF and Gaussian Splatting development.
+- 2025-02-26: Depth Any Camera accepted by CVPR 2025!
 - 2025-01-21: Demo code for easy setup and usage.
 - 2025-01-13: Release of pre-trained DepthAnyCamera (DAC) models trained on moderately sized datasets.
 - 2025-01-13: Testing and evaluation pipeline for zero-shot metric depth estimation on perspective, fisheye, and 360-degree datasets.
@@ -165,13 +168,13 @@ python demo/run_dac_zipnerf_scene.py
 python demo/run_dac_scannetpp_scene.py
 ```
 
-Our depth results can be directly downloaded from [ZipNeRF DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/zipnerf_dac_swinl_indoor_2025_01.zip), and [ScanNet++ DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/scannetpp_dac_swinl_indoor_2025_01.zip). The results folder can be simply merged with the original dataset for further usage. The predicted depth maps are saved in uint16 images, with visualization as shown below.
+Our depth results can be directly downloaded from [ZipNeRF DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/zipnerf_dac_swinl_indoor_2025_01.zip), and [ScanNet++ DAC results](https://huggingface.co/yuliangguo/depth-any-camera/blob/main/scannetpp_dac_swinl_indoor_2025_01.zip). The results folder can be simply merged with the original dataset for further usage. The predicted depth maps are saved in uint16 images, with visualization as shown below. 
 
 <p align="center">
   <img src="docs/zipnerf_alameda_vis.gif" alt="animated" style="width: 85%;"/>
 </p>
 
-
+**Important note**: Our depth maps record the Euclidean distance to the camera center instead of the z-distance to the image plane, which is not appropriate for large-FoV camera models.
 
 ## Testing
 
@@ -259,7 +262,7 @@ If you find our work useful in your research please consider citing our publicat
 @inproceedings{Guo2025DepthAnyCamera,
   title={Depth Any Camera: Zero-Shot Metric Depth Estimation from Any Camera},
   author={Yuliang Guo and Sparsh Garg and S. Mahdi H. Miangoleh and Xinyu Huang and Liu Ren},
-  booktitle={arXiv},
+  booktitle={CVPR},
   year={2025}
 }
 ```

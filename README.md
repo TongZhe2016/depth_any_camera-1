@@ -246,7 +246,7 @@ We thank the authors of the following awesome codebases:
 - [UniDepth](https://github.com/lpiccinelli-eth/UniDepth)
 - [OmniFusion](https://github.com/yuliangguo/OmniFusion)
 
-For developers interested in generic model or operator designs addressing the cross-camera generalization problem, we refer them to the following insightful works
+For developers interested in multi-view-stereo designs contributing to the cross-camera generalization problem, we refer them to the following insightful works
 - [nvTorchCam](https://github.com/NVlabs/nvTorchCam)
 - [FoVA-Depth](https://research.nvidia.com/labs/lpr/fova-depth/)
 

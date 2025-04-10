@@ -246,8 +246,9 @@ We thank the authors of the following awesome codebases:
 - [UniDepth](https://github.com/lpiccinelli-eth/UniDepth)
 - [OmniFusion](https://github.com/yuliangguo/OmniFusion)
 
-For developers interested in model or operator designs addressing the cross-camera generalization problem, we refer them to
+For developers interested in generic model or operator designs addressing the cross-camera generalization problem, we refer them to the following insightful works
 - [nvTorchCam](https://github.com/NVlabs/nvTorchCam)
+- [FoVA-Depth](https://research.nvidia.com/labs/lpr/fova-depth/)
 
 ## License
 This software is released under MIT license. You can view a license summary [here](LICENSE).

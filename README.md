@@ -239,7 +239,6 @@ Similar commands apply to outdoor model training. There are various options avai
 | metric3d-outdoor-swinl        | scripts/train_persp.py         | [relative path](configs/train/ddad+lyft/ddad+lyft_swinl_s2.json)                                   | IDisc or CNNDepth  |
 
 
-
 ## Acknowledgements
 We thank the authors of the following awesome codebases:
 - [iDisc](https://github.com/SysCV/idisc)
@@ -247,11 +246,10 @@ We thank the authors of the following awesome codebases:
 - [UniDepth](https://github.com/lpiccinelli-eth/UniDepth)
 - [OmniFusion](https://github.com/yuliangguo/OmniFusion)
 
-Please also consider citing them.
-
+For developers interested in model or operator designs addressing the cross-camera generalization problem, we refer them to
+- [nvTorchCam](https://github.com/NVlabs/nvTorchCam)
 
 ## License
-
 This software is released under MIT license. You can view a license summary [here](LICENSE).
 
 

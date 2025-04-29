@@ -112,11 +112,11 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
     [img_h, img_w, _] = img.shape
 
     img_new = np.transpose(img, [2, 0, 1])
-    img_new = torch.from_numpy(img_new).unsqueeze(0)
+    img_new = torch.from_numpy(img_new).float().unsqueeze(0)  # 转换为float类型
     depth_new = np.transpose(depth, [2, 0, 1])
-    depth_new = torch.from_numpy(depth_new).unsqueeze(0)
+    depth_new = torch.from_numpy(depth_new).float().unsqueeze(0)  # 转换为float类型
     mask_valid_depth = np.transpose(mask_valid_depth, [2, 0, 1])
-    mask_valid_depth = torch.from_numpy(mask_valid_depth).unsqueeze(0)
+    mask_valid_depth = torch.from_numpy(mask_valid_depth).float().unsqueeze(0)  # 转换为float类型
 
     PI = math.pi
     PI_2 = math.pi * 0.5
@@ -140,8 +140,13 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
     x_num = (torch.cos(lat_grid) * torch.sin(lon_grid - cp[..., 0]))
     y_num = (torch.cos(cp[..., 1]) * torch.sin(lat_grid) - torch.sin(cp[..., 1]) * torch.cos(lat_grid) * torch.cos(
         lon_grid - cp[..., 0]))
-    new_x = x_num / cos_c
-    new_y = y_num / cos_c
+    
+    # 创建一个掩码，过滤掉cos_c为负值或接近0的点（这些点在球的另一半球上）
+    valid_mask = cos_c > 0.01  # 使用一个小的阈值，避免除以接近0的值
+    cos_c_safe = torch.where(valid_mask, cos_c, torch.ones_like(cos_c))  # 对于无效点，使用1作为安全值
+    
+    new_x = torch.where(valid_mask, x_num / cos_c_safe, torch.zeros_like(x_num))
+    new_y = torch.where(valid_mask, y_num / cos_c_safe, torch.zeros_like(y_num))
 
     # OPTIONAL: apply camera roll correction
     if roll is not None:
@@ -282,10 +287,13 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
     new_y = new_y.reshape(1, patch_h, patch_w)
     new_grid = torch.stack([new_x, new_y], -1)
 
-    # those value within -1, 1 corresponding to content area
+    # those value within -1, 1 corresponding to content area, and also consider the valid_mask
     mask_active = torch.logical_and(
-        torch.logical_and(new_x > -1, new_x < 1),
-        torch.logical_and(new_y > -1, new_y < 1),
+        torch.logical_and(
+            torch.logical_and(new_x > -1, new_x < 1),
+            torch.logical_and(new_y > -1, new_y < 1)
+        ),
+        valid_mask.reshape(1, patch_h, patch_w)  # 重塑valid_mask以匹配mask_active的形状
     )*1.0
 
     # inverse mapping through grid_sample function in pytorch. Alternative is cv2.remap

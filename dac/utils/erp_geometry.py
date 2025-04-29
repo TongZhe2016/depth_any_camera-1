@@ -113,6 +113,8 @@ def cam_to_erp_patch_fast(img, depth, mask_valid_depth, theta, phi, patch_h, pat
 
     img_new = np.transpose(img, [2, 0, 1])
     img_new = torch.from_numpy(img_new).float().unsqueeze(0)  # 转换为float类型
+    # 归一化像素值到[0.0, 1.0]范围
+    img_new = img_new / 255.0
     depth_new = np.transpose(depth, [2, 0, 1])
     depth_new = torch.from_numpy(depth_new).float().unsqueeze(0)  # 转换为float类型
     mask_valid_depth = np.transpose(mask_valid_depth, [2, 0, 1])
